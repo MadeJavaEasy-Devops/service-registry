@@ -1,31 +1,31 @@
 pipeline{
-    agent { label 'Jenkins-Agent'}
-    tools {
+    agent{ label 'Jenkins-Agent'}
+    tools{
         jdk 'java17'
         maven 'maven3'
-    }
+         }
     stages{
         stage('Cleanup Workspace')
-             steps {
+             steps{
              cleanWs()
              }
-    }
+        }
     stages{
         stage('Checkout from SCM')
-             steps {
+             steps{
              git branch:'master',credentialsId: 'github',url: 'https://github.com/MadeJavaEasy-Devops/service-registry'
              }
-    }
+        }
     stages{
         stage('Build Application')
-             steps {
+             steps{
              sh 'mvn clean package'
              }
-    }
+       }
     stages{
         stage('Test Application')
-             steps {
+             steps{
              sh 'mvn test'
              }
-    }  
+       }  
   } 
