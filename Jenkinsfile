@@ -10,7 +10,7 @@ pipeline {
             DOCKER_USER = "madeeasyjava"
             DOCKER_PASS = 'dockerhub'
             IMAGE_NAME = "${DOCKER_USER}" + "/" + "${APP_NAME}"
-            IMAGE_TAG = "${RELEASE}-${BUILD-NUMBER}"
+            IMAGE_TAG = "${RELEASE}-${BUILD_NUMBER}"
            }
     
    stages{
