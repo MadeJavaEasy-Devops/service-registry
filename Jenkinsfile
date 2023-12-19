@@ -34,21 +34,25 @@ pipeline {
              sh 'mvn test'
              }  
         } 
-        stage("Build & Push Docker Image") {
-            steps {
-                script {
-                    docker.withRegistry('',DOCKER_PASS) {
-                        docker_image = docker.build "${IMAGE_NAME}"
-                    }
-                    docker.withRegistry('',DOCKER_PASS) {
-                        docker_image.push("${IMAGE_TAG}")
-                        docker_image.push('latest')
-                    }
-               }
-           }
+
+        stage('Docker Build') {
+              steps {
+      	      sh 'docker build -t madeeasyjava/service-registry:latest .'
+              }
         }
-    }
- }
+       stage('Docker Push') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', passwordVariable: 'dockerhub-creadentials', usernameVariable: 'madeeasyjava')]) {
+        	    sh "docker login -u ${env.madeeasyjava} -p ${env.dockerhub-creadentials}"
+                sh 'docker push madeeasyjava/service-registry:latest'
+               }
+            }
+       }
+   }
+}
+
+
+
 
 
   
