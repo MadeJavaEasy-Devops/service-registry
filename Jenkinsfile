@@ -11,6 +11,9 @@ pipeline {
             DOCKER_PASS = 'dockerhub'
             IMAGE_NAME = "${DOCKER_USER}" + "/" + "${APP_NAME}"
             IMAGE_TAG = "${RELEASE}-${BUILD_NUMBER}"
+            registry = "madeeasyjava/service-registry"
+            registryCredential = 'dockerhub'
+            dockerImage = ''
     }
     
    stages{
@@ -33,25 +36,24 @@ pipeline {
              steps{
              sh 'mvn test'
              }  
-        } 
-
-        stage('Initialize'){
-             def dockerHome = tool 'myDocker'
-             env.PATH = "${dockerHome}/bin:${env.PATH}"
-        }
-        stage('Docker Build') {
-              steps {
-      	      sh 'docker build -t madeeasyjava/service-registry:latest .'
-              }
-        }
-       stage('Docker Push') {
-            steps {
-                withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', passwordVariable: 'dockerhub-creadentials', usernameVariable: 'madeeasyjava')]) {
-        	    sh "docker login -u ${env.madeeasyjava} -p ${env.dockerhub-creadentials}"
-                sh 'docker push madeeasyjava/service-registry:latest'
-               }
+        }  
+        stage('Build image') {
+            steps{
+            script {
+             dockerImage = docker.build registry + ":$BUILD_NUMBER"
             }
+           }
        }
+        stage('Upload Image to Registry') {
+            steps{
+            script {
+            docker.withRegistry( '', registryCredential ) {
+            dockerImage.push()
+            }
+          }
+        }
+    
+     }
    }
 }
 
