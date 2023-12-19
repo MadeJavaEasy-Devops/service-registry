@@ -39,24 +39,22 @@ pipeline {
         }  
         stage('Build image') {
             steps{
-            script {
-             sh 'mv docker/* /usr/bin/'
-             dockerImage = docker.build registry + ":$BUILD_NUMBER"
+            sh "docker build -t service-registry -f docker/Dockerfile ."
+            sh "docker tag service-registry madeeasyjava/service-registry:latest"
             }
-           }
-       }
-        stage('Upload Image to Registry') {
-            steps{
-            script {
-            docker.withRegistry( '', registryCredential ) {
-            dockerImage.push()
+           } 
+      stage('Deploy To Docker Container') {
+            steps {
+                script {
+                    withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', passwordVariable: 'dockerhub-creadentials', usernameVariable: 'madeeasyjava')]) {
+                        sh "docker run -d --name service-registry -p 8080:8080 madeeasyjava/service-registry:latest"
+                    }
+                }
             }
-          }
         }
-    
      }
-   }
 }
+
 
 
 
